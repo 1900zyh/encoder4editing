@@ -446,20 +446,16 @@ class Generator(nn.Module):
         self.n_latent = self.log_size * 2 - 2
 
     def make_noise(self):
-        device = self.input.input.device
-
-        noises = [torch.randn(1, 1, 2 ** 2, 2 ** 2, device=device)]
+        noises = [torch.randn(1, 1, 2 ** 2, 2 ** 2).cuda()]
 
         for i in range(3, self.log_size + 1):
             for _ in range(2):
-                noises.append(torch.randn(1, 1, 2 ** i, 2 ** i, device=device))
+                noises.append(torch.randn(1, 1, 2 ** i, 2 ** i).cuda())
 
         return noises
 
     def mean_latent(self, n_latent):
-        latent_in = torch.randn(
-            n_latent, self.style_dim, device=self.input.input.device
-        )
+        latent_in = torch.randn(n_latent, self.style_dim).cuda()
         latent = self.style(latent_in).mean(0, keepdim=True)
 
         return latent

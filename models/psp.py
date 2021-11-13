@@ -93,7 +93,7 @@ class pSp(nn.Module):
 
     def __load_latent_avg(self, ckpt, repeat=None):
         if 'latent_avg' in ckpt:
-            self.latent_avg = ckpt['latent_avg'].to(self.opts.device)
+            self.latent_avg = ckpt['latent_avg'].cuda()
             if repeat is not None:
                 self.latent_avg = self.latent_avg.repeat(repeat, 1)
         else:

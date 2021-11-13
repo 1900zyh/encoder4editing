@@ -50,6 +50,7 @@ class GradualStyleBlock(Module):
 
     def forward(self, x):
         x = self.convs(x)
+        print('styleblock:', x.size())
         x = x.view(-1, self.out_c)
         x = self.linear(x)
         return x
@@ -178,16 +179,22 @@ class Encoder4Editing(Module):
             x = l(x)
             if i == 6:
                 c1 = x
+                print('c1:', c1.size())
             elif i == 20:
                 c2 = x
+                print('c2:', c2.size())
             elif i == 23:
                 c3 = x
+                print('c3:', c3.size())
+            print('body',i, x.size())
 
         # Infer main W and duplicate it
         w0 = self.styles[0](c3)
+        print('w0:', w0.size())
         w = w0.repeat(self.style_count, 1, 1).permute(1, 0, 2)
         stage = self.progressive_stage.value
         features = c3
+        print('w:', w.size(), min(stage+1, self.style_count))
         for i in range(1, min(stage + 1, self.style_count)):  # Infer additional deltas
             if i == self.coarse_ind:
                 p2 = _upsample_add(c3, self.latlayer1(c2))  # FPN's middle features
@@ -196,6 +203,7 @@ class Encoder4Editing(Module):
                 p1 = _upsample_add(p2, self.latlayer2(c1))  # FPN's fine features
                 features = p1
             delta_i = self.styles[i](features)
+#             print(f'delta {i}:', delta_i.size(), delta_i.mean(), delta_i.std())
             w[:, i] += delta_i
         return w
 
